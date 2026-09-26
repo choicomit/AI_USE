@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 스마트 오피스 실무교육 · 복습실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --ink:#2b2b2b; --sub:#6b6b6b;
+  --line:#e5e2db; --navy:#2f3b52; --navy-d:#232c3d; --accent:#b08d57;
+  --star:#e8b400; --star-off:#d9d5cc; --danger:#b3432f; --ok:#3c6e4f;
+  --radius:10px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1c1d1f; --panel:#25262a; --ink:#e9e7e2; --sub:#a3a19b;
+    --line:#38393d; --navy:#3d4a63; --navy-d:#2c3648; --star-off:#4a4a4a;
+  }
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",-apple-system,sans-serif;line-height:1.6;}
+#app{max-width:960px;margin:0 auto;padding:32px 20px 64px;min-height:100vh;}
+h1,h2,h3{font-weight:700;letter-spacing:-0.01em;}
+.brand{font-size:13px;letter-spacing:.14em;color:var(--sub);text-transform:uppercase;margin-bottom:6px;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:28px;margin-bottom:20px;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 20px;border-radius:8px;border:1px solid var(--navy);background:var(--navy);color:#fff;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;transition:opacity .15s;}
+.btn:hover{opacity:.88;}
+.btn.ghost{background:transparent;color:var(--navy);}
+.btn.outline{background:transparent;color:var(--ink);border-color:var(--line);}
+.btn.small{padding:7px 14px;font-size:13px;}
+.btn.danger{background:var(--danger);border-color:var(--danger);}
+input[type=text],input[type=password],input[type=url],textarea{
+  width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:8px;background:var(--bg);
+  color:var(--ink);font-family:inherit;font-size:14.5px;
+}
+textarea{resize:vertical;min-height:110px;}
+label{font-size:13px;color:var(--sub);display:block;margin-bottom:6px;font-weight:500;}
+.field{margin-bottom:18px;}
+.msg-err{color:var(--danger);font-size:13.5px;margin-top:8px;min-height:18px;}
+.msg-ok{color:var(--ok);font-size:13.5px;margin-top:8px;min-height:18px;}
+.center-hero{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;}
+.top-corner{position:absolute;top:0;right:0;}
+.divider{height:1px;background:var(--line);margin:26px 0;}
+.overlay{position:fixed;inset:0;background:rgba(20,20,20,.42);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
+.modal{background:var(--panel);border-radius:var(--radius);padding:26px;width:100%;max-width:360px;border:1px solid var(--line);}
+.pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:20px;background:var(--navy);color:#fff;}
+.notice{background:#fbf3e2;border:1px solid #eddcb0;color:#7a5c1e;padding:10px 14px;border-radius:8px;font-size:13.5px;margin-bottom:18px;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .notice{background:#3a3220;border-color:#5a4d2c;color:#e8cf8a;}}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.stars span{font-size:20px;margin-right:2px;color:var(--star-off);cursor:pointer;}
+.stars span.on{color:var(--star);}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.cal-dow{text-align:center;font-size:12px;color:var(--sub);padding-bottom:6px;}
+.cal-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:14px;cursor:default;color:var(--sub);border:1px solid transparent;}
+.cal-cell.active{cursor:pointer;background:var(--bg);color:var(--ink);border-color:var(--line);font-weight:600;}
+.cal-cell.active:hover{border-color:var(--navy);}
+.cal-cell.today{outline:1.5px solid var(--accent);}
+.cal-cell.empty{visibility:hidden;}
+.zoom-bar{display:flex;gap:8px;align-items:center;margin:10px 0 16px;}
+.content-box{border:1px solid var(--line);border-radius:8px;padding:18px;background:var(--bg);transform-origin:top left;overflow:auto;}
+.file-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;}
+.file-item:last-child{border-bottom:none;}
+.file-item a{color:var(--navy);text-decoration:none;font-weight:600;}
+.qbox{margin-top:22px;}
+.q-log{margin-top:12px;}
+.q-log .q-item{font-size:13.5px;padding:8px 0;border-bottom:1px dashed var(--line);color:var(--sub);}
+.tabbar{display:flex;gap:8px;margin-bottom:20px;}
+.tabbar button{padding:8px 16px;border-radius:20px;border:1px solid var(--line);background:var(--panel);color:var(--sub);font-family:inherit;font-size:13.5px;cursor:pointer;}
+.tabbar button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.pen-toolbar{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap;}
+.swatch{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;}
+.swatch.sel{border-color:var(--navy);}
+.canvas-wrap{position:relative;border:1px solid var(--line);border-radius:8px;overflow:auto;max-height:520px;background:#111;}
+.canvas-wrap canvas{display:block;touch-action:none;}
+.hint{font-size:12.5px;color:var(--sub);margin-top:6px;}
+.editor-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
+.rich-editor{min-height:280px;padding:14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:15px;line-height:1.7;overflow:auto;}
+.rich-editor img,.rich-view img{max-width:60%;border-radius:6px;}
+.rich-editor::after,.rich-view::after{content:"";display:table;clear:both;}
+.rich-view{font-size:15px;line-height:1.7;}
+.rich-view p{margin:0 0 10px;}
+.img-resize-panel{position:fixed;z-index:100;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;width:220px;box-shadow:0 4px 14px rgba(0,0,0,.16);}
+.img-resize-panel label{font-size:12px;color:var(--sub);display:block;margin-bottom:4px;}
+.rich-editor img{cursor:pointer;}
+.rich-editor img.imgsel{outline:2px solid var(--navy);}
+footer.small{color:var(--sub);font-size:12px;text-align:center;margin-top:40px;}
+@media(max-width:600px){.card{padding:18px;}.cal-cell{font-size:12px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+let db=null, assetsApi=null, sample=null;
+let CONFIG={studentCode:"12345", instructorPassword:"KMY0412"};
+let SESSIONS={}; // date -> data
+let mode="login"; // login | student | instructor
+let curDate=null;
+let calYear=2026, calMonth=9; // 2026년 9월 기본 시작
+let penColor="#e8453c";
+
+const $ = sel => document.querySelector(sel);
+const pad2 = n => String(n).padStart(2,"0");
+const dstr = (y,m,d) => `${y}-${pad2(m)}-${pad2(d)}`;
+const todayStr = () => { const t=new Date(); return dstr(t.getFullYear(),t.getMonth()+1,t.getDate()); };
+const daysBetween = (a,b) => Math.floor((b-a)/86400000);
+
+async function initCapabilities(){
+  try{ db = await claude.use("db"); }catch(e){ db=null; }
+  try{ assetsApi = await claude.use("assets"); }catch(e){ assetsApi=null; }
+  try{ sample = await claude.use("sample"); }catch(e){ sample=null; }
+  if(db){
+    try{
+      const cfgDoc = db.collection("config").doc("access");
+      const snap = await cfgDoc.get();
+      if(snap && snap.exists){
+        CONFIG = Object.assign(CONFIG, snap.data());
+      }else{
+        await cfgDoc.set(CONFIG);
+      }
+    }catch(e){}
+    try{
+      const q = await db.collection("sessions").get();
+      q.forEach ? q.forEach(d=>{SESSIONS[d.id]=d.data();}) : (q.docs||[]).forEach(d=>{SESSIONS[d.id]=d.data();});
+    }catch(e){}
+  }
+}
+
+function saveConfig(){
+  if(db){ db.collection("config").doc("access").set(CONFIG).catch(()=>{}); }
+}
+function saveSession(date){
+  if(!SESSIONS[date]) return;
+  if(db){ db.collection("sessions").doc(date).set(SESSIONS[date]).catch(()=>{}); }
+}
+
+// ---------- render root ----------
+function render(){
+  if(mode==="login") renderLogin();
+  else if(mode==="student") renderStudent();
+  else if(mode==="instructor") renderInstructor();
+}
+
+function renderLogin(){
+  $("#app").innerHTML = `
+  <div class="top-corner"><button class="btn ghost small" onclick="askInstructorPw()">강사용</button></div>
+  <div class="center-hero">
+    <div class="brand">AI 스마트 오피스 실무교육</div>
+    <h1 style="font-size:26px;margin:0 0 6px;">복습실 입장</h1>
+    <p style="color:var(--sub);margin:0 0 26px;font-size:14.5px;">수업에서 받은 코드번호를 입력해 주세요</p>
+    <div style="width:100%;max-width:320px;">
+      <input type="text" id="codeInput" placeholder="코드번호" inputmode="numeric" style="text-align:center;font-size:17px;letter-spacing:.06em;">
+      <div class="msg-err" id="codeErr"></div>
+      <button class="btn" style="width:100%;margin-top:6px;" onclick="tryEnter()">강의실 입장</button>
+    </div>
+  </div>`;
+  $("#codeInput").addEventListener("keydown", e=>{ if(e.key==="Enter") tryEnter(); });
+  $("#codeInput").focus();
+}
+function tryEnter(){
+  const v = $("#codeInput").value.trim();
+  if(v===String(CONFIG.studentCode)){ mode="student"; curDate=null; render(); }
+  else{
+    $("#codeErr").textContent="코드를 다시 입력하세요";
+    $("#codeInput").value=""; $("#codeInput").focus();
+  }
+}
+function askInstructorPw(){
+  const wrap=document.createElement("div");
+  wrap.className="overlay"; wrap.id="pwOverlay";
+  wrap.innerHTML=`<div class="modal">
+    <h3 style="margin-top:0;font-size:16px;">강사 전용</h3>
+    <div class="field"><label>비밀번호</label><input type="password" id="pwInput"></div>
+    <div class="msg-err" id="pwErr"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+      <button class="btn outline small" onclick="document.getElementById('pwOverlay').remove()">취소</button>
+      <button class="btn small" onclick="checkPw()">확인</button>
+    </div>
+  </div>`;
+  document.body.appendChild(wrap);
+  const inp=$("#pwInput"); inp.focus();
+  inp.addEventListener("keydown", e=>{ if(e.key==="Enter") checkPw(); });
+}
+function checkPw(){
+  const v=$("#pwInput").value;
+  if(v===CONFIG.instructorPassword){ document.getElementById("pwOverlay").remove(); mode="instructor"; render(); }
+  else{ $("#pwErr").textContent="비밀번호가 올바르지 않습니다"; $("#pwInput").value=""; }
+}
+
+// ---------- calendar ----------
+function calendarHTML(activeCheck, onClickName){
+  const first = new Date(calYear, calMonth-1, 1);
+  const startDow = first.getDay();
+  const numDays = new Date(calYear, calMonth, 0).getDate();
+  let cells="";
+  for(let i=0;i<startDow;i++) cells+=`<div class="cal-cell empty"></div>`;
+  for(let d=1;d<=numDays;d++){
+    const ds = dstr(calYear,calMonth,d);
+    const active = activeCheck(ds);
+    const isToday = ds===todayStr();
+    cells+=`<div class="cal-cell ${active?"active":""} ${isToday?"today":""}" ${active?`onclick="${onClickName}('${ds}')"`:""}>${d}</div>`;
+  }
+  const dow=["일","월","화","수","목","금","토"].map(d=>`<div class="cal-dow">${d}</div>`).join("");
+  return `<div class="cal-head">
+    <button class="btn outline small" onclick="calShift(-1,'${onClickName}')">‹ 이전</button>
+    <strong>${calYear}년 ${calMonth}월</strong>
+    <button class="btn outline small" onclick="calShift(1,'${onClickName}')">다음 ›</button>
+  </div>
+  <div class="cal-grid">${dow}${cells}</div>`;
+}
+function calShift(delta, onClickName){
+  calMonth+=delta;
+  if(calMonth<1){calMonth=12;calYear--;}
+  if(calMonth>12){calMonth=1;calYear++;}
+  render();
+}
+function isWithinWeek(date){
+  const d=new Date(date+"T00:00:00");
+  const diff=daysBetween(d,new Date());
+  return diff>=0 && diff<7;
+}
+
+// ---------- student UI ----------
+function renderStudent(){
+  const inClass = curDate ? SESSIONS[curDate] : null;
+  const showContent = curDate && inClass && isWithinWeek(curDate);
+  $("#app").innerHTML = `
+    <div class="topbar">
+      <div><div class="brand">AI 스마트 오피스 실무교육</div><h2 style="margin:2px 0 0;font-size:20px;">수강생 복습실</h2></div>
+      <span class="pill" style="cursor:pointer" onclick="askInstructorPw()">강사전용</span>
+    </div>
+    ${showContent ? renderSessionView(curDate) : `
+      <div class="card">
+        ${calendarHTML(ds=>!!SESSIONS[ds]&&isWithinWeek(ds), "openSession")}
+        <p class="hint" style="margin-top:14px;">날짜에 배경이 있는 날은 학습 내용이 등록된 날입니다. 등록 후 7일이 지나면 자동으로 사라집니다.</p>
+      </div>`}
+    <footer class="small">문의: 담당 강사에게 연락해 주세요</footer>`;
+}
+async function openSession(ds){
+  if(db){
+    try{
+      const snap = await db.collection("sessions").doc(ds).get();
+      if(snap && snap.exists) SESSIONS[ds] = snap.data();
+    }catch(e){}
+  }
+  curDate=ds; render();
+}
+function backToCalendar(){ curDate=null; render(); }
+
+function renderSessionView(ds){
+  const s = SESSIONS[ds];
+  const yt = s.youtube ? toYoutubeEmbed(s.youtube) : "";
+  const stars = "★★★★★".split("").map((c,i)=>`<span class="${i<(s.difficulty||0)?"on":""}">★</span>`).join("");
+  const qlog = (s.questions||[]).map(q=>`<div class="q-item">${escapeHtml(q.text)}</div>`).join("");
+  return `
+  <div class="card">
+    <button class="btn outline small" onclick="backToCalendar()" style="margin-bottom:16px;">‹ 뒤로가기</button>
+    <div class="notice">아래 학습내용은 <strong>일주일간만</strong> 제공됩니다.</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <h3 style="margin:0;">${ds} 수업 내용</h3>
+      <div class="stars">${stars}</div>
+    </div>
+    <div class="zoom-bar">
+      <button class="btn outline small" onclick="zoomBox(-0.1)">－</button>
+      <span id="zoomLbl" class="hint">100%</span>
+      <button class="btn outline small" onclick="zoomBox(0.1)">＋</button>
+    </div>
+    <div class="content-box" id="contentBox" style="transform:scale(1);">
+      <div class="rich-view">${s.content || "등록된 설명이 아직 없습니다."}</div>
+      ${yt ? `<div class="divider"></div><div style="aspect-ratio:16/9;"><iframe width="100%" height="100%" src="${yt}" frameborder="0" allowfullscreen></iframe></div>` : ""}
+    </div>
+    <div class="qbox">
+      <label>질문 또는 의견 (선택)</label>
+      <textarea id="qInput" placeholder="궁금한 점을 남겨주세요 (입력하지 않아도 됩니다)"></textarea>
+      <button class="btn small" style="margin-top:8px;" onclick="submitQ('${ds}')">남기기</button>
+      <div class="msg-ok" id="qOk"></div>
+      <div class="q-log">${qlog}</div>
+    </div>
+  </div>`;
+}
+let zoomLevel=1;
+function zoomBox(delta){
+  zoomLevel=Math.min(2,Math.max(0.6,zoomLevel+delta));
+  $("#contentBox").style.transform=`scale(${zoomLevel})`;
+  $("#zoomLbl").textContent=Math.round(zoomLevel*100)+"%";
+}
+function submitQ(ds){
+  const v=$("#qInput").value.trim();
+  if(!v) return;
+  SESSIONS[ds].questions = SESSIONS[ds].questions||[];
+  SESSIONS[ds].questions.push({text:v, at:Date.now()});
+  saveSession(ds);
+  $("#qOk").textContent="전달되었습니다. 감사합니다.";
+  render();
+}
+function toYoutubeEmbed(url){
+  const m = url.match(/(?:youtu\.be\/|v=)([\w-]{11})/);
+  return m ? `https://www.youtube.com/embed/${m[1]}` : url;
+}
+function setupImageResize(){
+  const editor=$("#contentInput");
+  if(!editor) return;
+  editor.addEventListener("click", e=>{
+    if(e.target.tagName==="IMG"){ showImgResizer(e.target); }
+    else{ removeImgResizer(); }
+  });
+}
+function showImgResizer(img){
+  removeImgResizer();
+  document.querySelectorAll(".rich-editor img").forEach(i=>i.classList.remove("imgsel"));
+  img.classList.add("imgsel");
+  const rect=img.getBoundingClientRect();
+  const curPct = parseInt(img.style.width)|| (img.getAttribute("width")?100:100) || 100;
+  const panel=document.createElement("div");
+  panel.className="img-resize-panel"; panel.id="imgResizePanel";
+  panel.style.top=Math.min(rect.bottom+8, window.innerHeight-220)+"px";
+  panel.style.left=Math.min(rect.left, window.innerWidth-236)+"px";
+  panel.innerHTML=`<label>이미지 크기: <span id="imgPctLbl">${curPct}%</span></label>
+    <input type="range" min="10" max="100" value="${curPct}" style="width:100%;" oninput="resizeSelectedImg(this.value)">
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+      <button class="btn outline small" onclick="resizeSelectedImg(25)">25%</button>
+      <button class="btn outline small" onclick="resizeSelectedImg(50)">50%</button>
+      <button class="btn outline small" onclick="resizeSelectedImg(100)">100%</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+      <button class="btn outline small" onclick="alignSelectedImg('left')">◧ 왼쪽 배치</button>
+      <button class="btn outline small" onclick="alignSelectedImg('right')">오른쪽 배치 ◨</button>
+      <button class="btn outline small" onclick="alignSelectedImg('center')">가운데(줄바꿈)</button>
+    </div>
+    <button class="btn outline small" style="margin-top:6px;width:100%;" onclick="removeImgResizer()">닫기</button>`;
+  document.body.appendChild(panel);
+  window.__selectedImg=img;
+}
+function resizeSelectedImg(pct){
+  const img=window.__selectedImg;
+  if(!img) return;
+  img.style.width=pct+"%"; img.style.height="auto";
+  const lbl=document.getElementById("imgPctLbl"); if(lbl) lbl.textContent=pct+"%";
+  const range=document.querySelector("#imgResizePanel input[type=range]"); if(range) range.value=pct;
+  const ds=curDate||todayStr();
+  SESSIONS[ds].content=$("#contentInput").innerHTML;
+  saveSession(ds);
+}
+function alignSelectedImg(align){
+  const img=window.__selectedImg;
+  if(!img) return;
+  if(align==="center"){ img.style.float="none"; img.style.display="block"; img.style.margin="10px auto"; }
+  else{ img.style.display="inline"; img.style.float=align; img.style.margin = align==="left" ? "4px 16px 8px 0" : "4px 0 8px 16px"; }
+  const ds=curDate||todayStr();
+  SESSIONS[ds].content=$("#contentInput").innerHTML;
+  saveSession(ds);
+}
+function removeImgResizer(){
+  const p=document.getElementById("imgResizePanel"); if(p) p.remove();
+  document.querySelectorAll(".rich-editor img").forEach(i=>i.classList.remove("imgsel"));
+  window.__selectedImg=null;
+}
+function fmt(cmd, val){
+  $("#contentInput").focus();
+  document.execCommand(cmd, false, val||null);
+  const ds = curDate || todayStr();
+  SESSIONS[ds].content = $("#contentInput").innerHTML;
+  saveSession(ds);
+}
+function triggerImgInsert(){ $("#imgInsertInput").click(); }
+async function insertImageIntoContent(ds){
+  const f = $("#imgInsertInput").files[0];
+  if(!f) return;
+  let url;
+  if(assetsApi){
+    try{ const res = await assetsApi.upload(f); url = res.url; }catch(e){}
+  }
+  if(!url) url = URL.createObjectURL(f);
+  const editor=$("#contentInput");
+  editor.focus();
+  document.execCommand("insertHTML", false,
+    `<img src="${url}" style="float:left;width:38%;margin:4px 16px 8px 0;" class="wrap-img">&nbsp;이미지 설명을 여기에 입력하세요.<br style="clear:both;">`);
+  SESSIONS[ds].content = editor.innerHTML;
+  saveSession(ds);
+}
+function stripHtml(html){ const d=document.createElement("div"); d.innerHTML=html; return d.textContent||""; }
+function escapeHtml(s){ return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+// ---------- instructor UI ----------
+function renderInstructor(){
+  const ds = curDate || todayStr();
+  if(!SESSIONS[ds]) SESSIONS[ds]={content:"",difficulty:0,files:[],youtube:"",questions:[],completed:false};
+  const s=SESSIONS[ds];
+  const stars = "★★★★★".split("").map((c,i)=>`<span class="${i<(s.difficulty||0)?"on":""}" onclick="setDiff('${ds}',${i+1})">★</span>`).join("");
+  const filesHtml = (s.files||[]).map((f,idx)=>`
+    <div class="file-item"><span>📎</span><a href="${f.url}" target="_blank">${f.name}</a>
+      <button class="btn outline small" style="margin-left:auto;padding:3px 9px;" onclick="removeFile('${ds}',${idx})">삭제</button></div>`).join("") || `<p class="hint">첨부된 파일 없음</p>`;
+  const firstImg = (s.files||[]).find(f=>f.type&&f.type.startsWith("image"));
+  const qlog=(s.questions||[]).map(q=>`<div class="q-item">${escapeHtml(q.text)}</div>`).join("") || `<p class="hint">등록된 질문 없음</p>`;
+
+  $("#app").innerHTML = `
+    <div class="topbar">
+      <div><div class="brand">AI 스마트 오피스 실무교육</div><h2 style="margin:2px 0 0;font-size:20px;">강사용 관리 화면</h2></div>
+      <button class="btn outline small" onclick="mode='student';curDate=null;render();">수강생 화면 보기</button>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">날짜 선택</h3>
+      ${calendarHTML(()=>true, "editSession")}
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="margin:0;">${ds} 학습 내용 ${s.completed?'<span class="pill" style="background:var(--ok);">게시됨</span>':''}</h3>
+        <div class="stars">${stars}</div>
+      </div>
+
+      ${firstImg ? `
+      <div class="divider"></div>
+      <label>교재 이미지 · 펜으로 표시</label>
+      <div class="pen-toolbar">
+        ${["#e8453c","#2f3b52","#e8b400","#3c6e4f"].map(c=>`<div class="swatch ${c===penColor?'sel':''}" style="background:${c}" onclick="penColor='${c}';render();"></div>`).join("")}
+        <button class="btn outline small" onclick="clearPen()">지우기</button>
+        <button class="btn outline small" onclick="penZoom(0.2)">확대＋</button>
+        <button class="btn outline small" onclick="penZoom(-0.2)">축소－</button>
+        <button class="btn small" onclick="savePenAnnotation('${ds}')">주석 저장</button>
+      </div>
+      <div class="canvas-wrap"><canvas id="penCanvas"></canvas></div>
+      <p class="hint">이미지 위에 마우스나 손가락으로 그어 중요한 부분을 표시하세요. 확대 후에도 펜 사용이 가능합니다.</p>
+      ` : `<p class="hint">이미지를 첨부하면 이 위치에서 펜으로 표시할 수 있습니다.</p>`}
+
+      <div class="divider"></div>
+      <label>내용 정리 / 설명</label>
+      <div class="editor-toolbar">
+        <button type="button" class="btn outline small" onmousedown="event.preventDefault();fmt('bold')"><strong>B</strong></button>
+        <button type="button" class="btn outline small" onmousedown="event.preventDefault();fmt('underline')" style="text-decoration:underline;">U</button>
+        <select onchange="fmt('fontSize', this.value)" style="padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);font-family:inherit;">
+          <option value="2">작게</option>
+          <option value="3" selected>보통</option>
+          <option value="5">크게</option>
+          <option value="7">아주크게</option>
+        </select>
+        <span class="hint" style="margin-left:6px;">글자색</span>
+        ${["#e8453c","#2f3b52","#3c6e4f","#b08d57"].map(c=>`<div class="swatch" style="background:${c}" onmousedown="event.preventDefault();fmt('foreColor','${c}')"></div>`).join("")}
+        <span class="hint" style="margin-left:6px;">음영</span>
+        ${["#fff2ae","#ffd6d6","#d7ecff","#dcf3dc"].map(c=>`<div class="swatch" style="background:${c}" onmousedown="event.preventDefault();fmt('hiliteColor','${c}')"></div>`).join("")}
+        <button type="button" class="btn outline small" onmousedown="event.preventDefault();fmt('removeFormat')">서식지우기</button>
+        <button type="button" class="btn outline small" onclick="triggerImgInsert()">이미지 삽입</button>
+        <input type="file" id="imgInsertInput" accept="image/*" style="display:none" onchange="insertImageIntoContent('${ds}')">
+      </div>
+      <div id="contentInput" class="rich-editor" contenteditable="true" oninput="saveField('${ds}','content',this.innerHTML)">${s.content||""}</div>
+      <p class="hint">삽입한 이미지를 클릭하면 크기를 조절할 수 있습니다.</p>
+
+      <div class="field" style="margin-top:16px;">
+        <label>AI 검토 및 보충</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn outline small" onclick="openChatGPT('${ds}')">ChatGPT에서 검토하기</button>
+          <button class="btn outline small" onclick="openGemini('${ds}')">Gemini에서 검토하기</button>
+          <button class="btn outline small" onclick="aiReview('${ds}')">Claude로 바로 검토받기</button>
+        </div>
+        <p class="hint">ChatGPT 버튼은 수업 내용을 복사해 chat.openai.com을 새 창으로 열어줘요. 창에 붙여넣기(Ctrl/⌘+V)만 하면 됩니다. 브라우저 보안 정책상 페이지에서 ChatGPT를 자동 호출할 수는 없어요.</p>
+        <div id="aiResult" style="margin-top:10px;font-size:14px;white-space:pre-wrap;color:var(--sub);"></div>
+      </div>
+
+      <div class="divider"></div>
+      <label>파일 첨부 (텍스트, 오디오, 동영상, 이미지, PDF, PPTX, XLSX, HWP 등)</label>
+      <input type="file" id="fileInput" multiple onchange="uploadFiles('${ds}')">
+      ${filesHtml}
+
+      <div class="divider"></div>
+      <label>유튜브 링크</label>
+      <input type="url" id="ytInput" value="${s.youtube||""}" placeholder="https://youtu.be/..." onblur="saveField('${ds}','youtube',this.value)">
+
+      <div class="divider"></div>
+      <h4>수강생 질문 / 의견</h4>
+      ${qlog}
+
+      <div class="divider"></div>
+      <button class="btn" onclick="completeSession('${ds}')">완료 (수강생 화면에 게시)</button>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;font-size:16px;">설정</h3>
+      <div class="field"><label>수강생 입장 코드번호</label>
+        <div style="display:flex;gap:8px;"><input type="text" id="codeSet" value="${CONFIG.studentCode}"><button class="btn small" onclick="updateCode()">변경</button></div></div>
+      <div class="field"><label>강사용 비밀번호 변경</label>
+        <div style="display:flex;gap:8px;"><input type="password" id="pwSet" placeholder="새 비밀번호"><button class="btn small" onclick="updatePw()">변경</button></div></div>
+      <div class="msg-ok" id="setOk"></div>
+    </div>`;
+
+  if(firstImg) setupPenCanvas(firstImg.url);
+  setupImageResize();
+}
+function editSession(ds){ curDate=ds; render(); }
+function setDiff(ds,n){ SESSIONS[ds].difficulty=n; saveSession(ds); render(); }
+function saveField(ds,key,val){ SESSIONS[ds][key]=val; saveSession(ds); }
+function completeSession(ds){ SESSIONS[ds].completed=true; saveSession(ds); render(); alert("게시가 완료되었습니다"); }
+function removeFile(ds,idx){ SESSIONS[ds].files.splice(idx,1); saveSession(ds); render(); }
+function updateCode(){ CONFIG.studentCode=$("#codeSet").value.trim(); saveConfig(); $("#setOk").textContent="코드번호가 변경되었습니다."; }
+function updatePw(){ const v=$("#pwSet").value.trim(); if(v){CONFIG.instructorPassword=v; saveConfig(); $("#setOk").textContent="비밀번호가 변경되었습니다.";} }
+
+async function uploadFiles(ds){
+  const files = $("#fileInput").files;
+  if(!files.length) return;
+  SESSIONS[ds].files = SESSIONS[ds].files||[];
+  for(const f of files){
+    if(assetsApi){
+      try{
+        const res = await assetsApi.upload(f);
+        SESSIONS[ds].files.push({id:res.id,url:res.url,name:f.name,type:f.type||res.contentType});
+      }catch(e){
+        SESSIONS[ds].files.push({name:f.name+" (업로드 실패)",url:"#",type:""});
+      }
+    }else{
+      const url = URL.createObjectURL(f);
+      SESSIONS[ds].files.push({name:f.name,url,type:f.type});
+    }
+  }
+  saveSession(ds); render();
+}
+
+async function openGemini(ds){
+  const content = SESSIONS[ds].content ? stripHtml(SESSIONS[ds].content) : "(입력된 내용 없음)";
+  const prompt = `아래는 AI 활용 스마트오피스 실무교육 수업 내용이야. 검토하고, 빠지기 쉬운 개념이나 보충하면 좋을 설명을 알려줘.\n\n[수업내용]\n${content}`;
+  let copied=false;
+  try{ await navigator.clipboard.writeText(prompt); copied=true; }catch(e){}
+  const box=$("#aiResult");
+  box.innerHTML = `${copied ? "수업 내용이 클립보드에 복사되었습니다. " : "클립보드 복사에 실패했습니다. 아래 내용을 직접 복사해 주세요. "}
+    아래 링크를 <strong>직접 클릭</strong>해서 Gemini를 열고 붙여넣기(Ctrl/⌘+V) 해주세요.<br>
+    <a href="https://gemini.google.com" target="_blank" rel="noopener" class="btn small" style="margin-top:8px;">Gemini 열기 →</a>
+    ${copied ? "" : `<textarea readonly style="margin-top:10px;">${prompt}</textarea>`}
+    <p class="hint">차단 화면이 뜬다면 이 페이지가 아니라 현재 네트워크나 브라우저에서 gemini.google.com 자체를 막고 있다는 뜻입니다.</p>`;
+}
+async function openChatGPT(ds){
+  const content = SESSIONS[ds].content ? stripHtml(SESSIONS[ds].content) : "(입력된 내용 없음)";
+  const prompt = `아래는 AI 활용 스마트오피스 실무교육 수업 내용이야. 검토하고, 빠지기 쉬운 개념이나 보충하면 좋을 설명을 알려줘.\n\n[수업내용]\n${content}`;
+  let copied=false;
+  try{ await navigator.clipboard.writeText(prompt); copied=true; }catch(e){}
+  const box=$("#aiResult");
+  box.innerHTML = `${copied ? "수업 내용이 클립보드에 복사되었습니다. " : "클립보드 복사에 실패했습니다. 아래 내용을 직접 복사해 주세요. "}
+    아래 링크를 <strong>직접 클릭</strong>해서 ChatGPT를 열고 붙여넣기(Ctrl/⌘+V) 해주세요.<br>
+    <a href="https://chatgpt.com" target="_blank" rel="noopener" class="btn small" style="margin-top:8px;">ChatGPT 열기 →</a>
+    ${copied ? "" : `<textarea readonly style="margin-top:10px;">${prompt}</textarea>`}
+    <p class="hint">차단 화면(ERR_BLOCKED_BY_RESPONSE)이 뜬다면 이 페이지가 아니라 현재 네트워크나 브라우저에서 chatgpt.com 자체를 막고 있는 경우입니다. 다른 네트워크(예: 모바일 데이터)나 브라우저에서 시도해 보세요.</p>`;
+}
+async function aiReview(ds){
+  const box=$("#aiResult");
+  if(!sample){ box.textContent="이 화면에서는 AI 검토 기능을 사용할 수 없습니다."; return; }
+  box.textContent="검토 중...";
+  const content = SESSIONS[ds].content ? stripHtml(SESSIONS[ds].content) : "(입력된 내용 없음)";
+  try{
+    const r = await sample(`너는 AI 활용 스마트오피스 실무교육 강사의 수업노트 검토를 돕는 보조교사야. 아래 수업 내용을 검토하고, 빠지기 쉬운 개념이나 보충하면 좋을 설명을 3~5줄로 간단히 제안해줘.\n\n[수업내용]\n${content}`);
+    box.textContent = r.text;
+  }catch(e){ box.textContent="검토 중 오류가 발생했습니다."; }
+}
+
+// ---- pen annotation ----
+let penState={drawing:false, ctx:null, scale:1, baseImg:null};
+function setupPenCanvas(url){
+  const img=new Image();
+  img.crossOrigin="anonymous";
+  img.onload=()=>{
+    const cv=$("#penCanvas");
+    cv.width=img.width; cv.height=img.height;
+    cv.style.width=(img.width*penState.scale)+"px";
+    const ctx=cv.getContext("2d");
+    ctx.drawImage(img,0,0);
+    penState.ctx=ctx; penState.baseImg=img;
+    let last=null;
+    const pos=e=>{ const r=cv.getBoundingClientRect(); const sx=cv.width/r.width, sy=cv.height/r.height;
+      const p = e.touches?e.touches[0]:e;
+      return {x:(p.clientX-r.left)*sx, y:(p.clientY-r.top)*sy}; };
+    const start=e=>{ penState.drawing=true; last=pos(e); e.preventDefault(); };
+    const move=e=>{ if(!penState.drawing) return; const p=pos(e);
+      ctx.strokeStyle=penColor; ctx.lineWidth=4; ctx.lineCap="round";
+      ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; e.preventDefault(); };
+    const end=()=>{ penState.drawing=false; };
+    cv.onmousedown=start; cv.onmousemove=move; window.addEventListener("mouseup",end);
+    cv.ontouchstart=start; cv.ontouchmove=move; cv.ontouchend=end;
+  };
+  img.src=url;
+}
+function clearPen(){ if(penState.ctx&&penState.baseImg){ penState.ctx.drawImage(penState.baseImg,0,0,penState.ctx.canvas.width,penState.ctx.canvas.height);} }
+function penZoom(d){ penState.scale=Math.min(3,Math.max(0.3,penState.scale+d)); $("#penCanvas").style.width=(penState.ctx.canvas.width*penState.scale)+"px"; }
+async function savePenAnnotation(ds){
+  const cv=$("#penCanvas");
+  cv.toBlob(async blob=>{
+    if(assetsApi){
+      try{
+        const res=await assetsApi.upload(new File([blob],"annotated.png",{type:"image/png"}));
+        SESSIONS[ds].files.unshift({id:res.id,url:res.url,name:"주석표시본.png",type:"image/png"});
+        saveSession(ds); render();
+      }catch(e){}
+    }
+  },"image/png");
+}
+
+initCapabilities().then(render);
+</script>
+</body>
+</html>
